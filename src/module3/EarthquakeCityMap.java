@@ -16,6 +16,8 @@ import de.fhpotsdam.unfolding.data.PointFeature;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
+import de.fhpotsdam.unfolding.providers.Microsoft;
+import de.fhpotsdam.unfolding.providers.OpenStreetMap;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 
 //Parsing library
@@ -24,8 +26,8 @@ import parsing.ParseFeed;
 /** EarthquakeCityMap
  * An application with an interactive map displaying earthquake data.
  * Author: UC San Diego Intermediate Software Development MOOC team
- * @author Your name here
- * Date: July 17, 2015
+ * @author Kuzma Leshakov
+ * Date: January 31, 2017
  * */
 public class EarthquakeCityMap extends PApplet {
 
@@ -58,7 +60,7 @@ public class EarthquakeCityMap extends PApplet {
 		    earthquakesURL = "2.5_week.atom"; 	// Same feed, saved Aug 7, 2015, for working offline
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 700, 500, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 200, 50, 700, 500, new Microsoft.AerialProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 			//earthquakesURL = "2.5_week.atom";
 		}
@@ -73,6 +75,15 @@ public class EarthquakeCityMap extends PApplet {
 	    //PointFeatures have a getLocation method
 	    List<PointFeature> earthquakes = ParseFeed.parseEarthquake(this, earthquakesURL);
 	    
+	    for(PointFeature p: earthquakes)
+	    {	
+	    	
+	    	markers.add(new SimplePointMarker(p.getLocation(), p.getProperties()));
+	    	
+	    	System.out.println(p.getProperty("magnitude"));
+	    }
+	    	map.addMarkers(markers);
+	    
 	    // These print statements show you (1) all of the relevant properties 
 	    // in the features, and (2) how to get one property and use it
 	    if (earthquakes.size() > 0) {
@@ -85,19 +96,36 @@ public class EarthquakeCityMap extends PApplet {
 	    
 	    // Here is an example of how to use Processing's color method to generate 
 	    // an int that represents the color yellow.  
-	    int yellow = color(255, 255, 0);
+	    int white = color(255, 255, 255);
+	    int blue = color(0, 0, 255);
+	    int red = color(255, 0, 0);
 	    
+	    for(Marker mk: markers)
+	    {	
+	    	
+	    
+	    	if( (float) mk.getProperty("magnitude") >= 5 )
+	    	{
+	    		mk.setColor(red);
+	    		
+	    		
+	    	}
+	    	else if( (float) mk.getProperty("magnitude") >= 4 )
+	    	{
+	    		mk.setColor(white);
+	    	}
+	    	else
+	    	{
+	    		mk.setColor(blue);
+	    	}
+	    }
 	    //TODO: Add code here as appropriate
 	}
 		
 	// A suggested helper method that takes in an earthquake feature and 
 	// returns a SimplePointMarker for that earthquake
 	// TODO: Implement this method and call it from setUp, if it helps
-	private SimplePointMarker createMarker(PointFeature feature)
-	{
-		// finish implementing and use this method, if it helps.
-		return new SimplePointMarker(feature.getLocation());
-	}
+	
 	
 	public void draw() {
 	    background(10);
@@ -111,6 +139,28 @@ public class EarthquakeCityMap extends PApplet {
 	private void addKey() 
 	{	
 		// Remember you can use Processing's graphics methods here
+		
+		fill(235,221,218);
+		rect(20, 50, 150, 250);
+
+		//textAlign(CENTER);
+		fill(0,0,0);
+		text("Earthquake Key", 45, 100);
+
+		fill(255, 0, 0);
+		ellipse(35, 137.5f, 10, 10);
+		fill(0,0,0);
+		text("5.0+ Magnitude", 55, 142);
+
+		fill(255, 255, 255);
+		ellipse(35, 175, 8, 8);
+		fill(0,0,0);
+		text("4.0+ Magnitude", 55, 178.5f);
+
+		fill(0, 0, 255);
+		ellipse(35, 212.5f, 5, 5);
+		fill(0,0,0);
+		text("Below 4.0", 55, 216f);
 	
 	}
 }
